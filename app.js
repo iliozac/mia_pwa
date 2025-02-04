@@ -1,6 +1,9 @@
 document.addEventListener('DOMContentLoaded', () => {
     const puntiInteresseContainer = document.getElementById('punti-interesse');
     const audioPlayer = document.getElementById('audio-player');
+    const notificaBox = document.getElementById('notifica-box');
+    const notificaMessaggio = document.getElementById('notifica-messaggio');
+    const riproduciAudioBtn = document.getElementById('riproduci-audio');
 
     // Registrazione del Service Worker
     if ('serviceWorker' in navigator) {
@@ -46,6 +49,12 @@ document.addEventListener('DOMContentLoaded', () => {
             console.error('Errore:', error);
             puntiInteresseContainer.innerHTML = '<p>Errore nel caricamento dei punti di interesse.</p>';
         });
+
+    // Gestione del pulsante di riproduzione
+    riproduciAudioBtn.addEventListener('click', () => {
+        audioPlayer.play();
+        notificaBox.style.display = 'none'; // Nascondi la box dopo aver avviato la riproduzione
+    });
 });
 
 function avviaGeolocalizzazione(punti) {
@@ -63,6 +72,9 @@ function avviaGeolocalizzazione(punti) {
 function verificaPosizioneUtente(position, punti) {
     const userLat = position.coords.latitude;
     const userLon = position.coords.longitude;
+    const notificaBox = document.getElementById('notifica-box');
+    const notificaMessaggio = document.getElementById('notifica-messaggio');
+    const audioPlayer = document.getElementById('audio-player');
 
     punti.forEach(punto => {
         const [puntoLat, puntoLon] = punto.acf.coordinate_gps.split(',').map(coord => parseFloat(coord.trim()));
@@ -74,14 +86,15 @@ function verificaPosizioneUtente(position, punti) {
         const sogliaProssimita = 0.1; // 100 metri
 
         if (distanza < sogliaProssimita) {
-            // Riproduci il file audio
-            const audioPlayer = document.getElementById('audio-player');
-            audioPlayer.src = punto.acf.file_audio;
-            audioPlayer.style.display = 'block';
-            audioPlayer.play();
+            // Mostra la box con il messaggio
+            notificaMessaggio.textContent = `Sei vicino a: ${punto.title.rendered}`;
+            notificaBox.style.display = 'block';
 
-            // Mostra una notifica
-            alert(`Sei vicino a: ${punto.title.rendered}`);
+            // Imposta il file audio da riprodurre
+            audioPlayer.src = punto.acf.file_audio;
+        } else {
+            // Nascondi la box se l'utente si allontana
+            notificaBox.style.display = 'none';
         }
     });
 }
