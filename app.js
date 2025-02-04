@@ -1,11 +1,20 @@
 document.addEventListener('DOMContentLoaded', () => {
     const puntiInteresseContainer = document.getElementById('punti-interesse');
-    const audioPlayer = document.getElementById('audio-player');
 
     // Recupera i punti di interesse dall'API REST
-    fetch('https://iltuosito.it/wp-json/wp/v2/punti-di-interesse')
-        .then(response => response.json())
+    fetch('https://ecorizzonti.it/wp-json/wp/v2/punti-di-interesse')
+        .then(response => {
+            if (!response.ok) {
+                throw new Error('Errore nel recupero dei dati');
+            }
+            return response.json();
+        })
         .then(punti => {
+            if (punti.length === 0) {
+                puntiInteresseContainer.innerHTML = '<p>Nessun punto di interesse trovato.</p>';
+                return;
+            }
+
             punti.forEach(punto => {
                 const puntoDiv = document.createElement('div');
                 puntoDiv.className = 'punto-interesse';
@@ -21,6 +30,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 const playButton = document.createElement('button');
                 playButton.textContent = 'Ascolta Audio';
                 playButton.addEventListener('click', () => {
+                    const audioPlayer = document.getElementById('audio-player');
                     audioPlayer.src = punto.acf.file_audio;
                     audioPlayer.style.display = 'block';
                     audioPlayer.play();
@@ -30,11 +40,8 @@ document.addEventListener('DOMContentLoaded', () => {
                 puntiInteresseContainer.appendChild(puntoDiv);
             });
         })
-        .catch(error => console.error('Errore:', error));
+        .catch(error => {
+            console.error('Errore:', error);
+            puntiInteresseContainer.innerHTML = '<p>Errore nel caricamento dei punti di interesse.</p>';
+        });
 });
-
-if ('serviceWorker' in navigator) {
-    navigator.serviceWorker.register('/sw.js')
-        .then(() => console.log('Service Worker registrato'))
-        .catch(error => console.error('Errore nella registrazione del Service Worker:', error));
-}
