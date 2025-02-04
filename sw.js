@@ -1,9 +1,11 @@
 const CACHE_NAME = 'audioguida-v1';
 const ASSETS = [
     '/',
+    '/index.html',
     '/styles.css',
     '/app.js',
-    // Aggiungi qui altri file statici
+    '/icon-192x192.png',
+    '/icon-512x512.png'
 ];
 
 self.addEventListener('install', (event) => {
