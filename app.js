@@ -2,6 +2,13 @@ document.addEventListener('DOMContentLoaded', () => {
     const puntiInteresseContainer = document.getElementById('punti-interesse');
     const audioPlayer = document.getElementById('audio-player');
 
+    // Registrazione del Service Worker
+    if ('serviceWorker' in navigator) {
+        navigator.serviceWorker.register('/sw.js')
+            .then(() => console.log('Service Worker registrato'))
+            .catch(error => console.error('Errore nella registrazione del Service Worker:', error));
+    }
+
     // Recupera i punti di interesse dall'API REST
     fetch('https://ecorizzonti.it/wp-json/wp/v2/punti-di-interesse')
         .then(response => {
@@ -89,17 +96,4 @@ function calcolaDistanza(lat1, lon1, lat2, lon2) {
         Math.sin(dLon / 2) * Math.sin(dLon / 2);
     const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
     return R * c; // Distanza in chilometri
-}
-
-// Chiamata alla funzione dopo aver caricato i punti di interesse
-fetch('https://ecorizzonti.it/wp-json/wp/v2/punti-di-interesse')
-    .then(response => response.json())
-    .then(punti => {
-        verificaPosizioneUtente(punti);
-    });
-
-if ('serviceWorker' in navigator) {
-    navigator.serviceWorker.register('/sw.js')
-        .then(() => console.log('Service Worker registrato'))
-        .catch(error => console.error('Errore nella registrazione del Service Worker:', error));
 }
