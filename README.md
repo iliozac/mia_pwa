@@ -8,7 +8,7 @@ Processo di sviluppo:
   -  Installato plugin ACF nel tema per visualizzare e verificare i metadati dei campi e esporre i campi eprsonalizzati nell'API REST di WP.
   -  Installato plugin ACF TO API REST (altrimenti ACF non esponeva i campi personalizzati e i punti di interesse nel JSON
 
-2) Creata repository mia_pwa con i file del sito e attivato sito Gitub Pages all'url: https://iliozac.github.io/mia_pwa/
+2) Creato il repository "mia_pwa" con i file per la PWA e attivato sito Gitub Pages all'url: https://iliozac.github.io/mia_pwa/
   - RISULTATO OK: nella pagina web appaiono i punti di interesse e i rispettivi campi/contenuti (file audio e coordinate GPS)
 
 4) Attivato secondo sito test si hosting Netlify: https://marvelous-jelly-cf7293.netlify.app/ e fatto Deploy da github
