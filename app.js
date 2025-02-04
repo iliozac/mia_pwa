@@ -70,7 +70,7 @@ function verificaPosizioneUtente(punti) {
 }
 
 // Chiamata alla funzione dopo aver caricato i punti di interesse
-fetch('https://iltuosito.it/wp-json/wp/v2/punti-di-interesse')
+fetch('https://ecorizzonti.it/wp-json/wp/v2/punti-di-interesse')
     .then(response => response.json())
     .then(punti => {
         verificaPosizioneUtente(punti);
