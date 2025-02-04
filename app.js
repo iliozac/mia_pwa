@@ -1,5 +1,6 @@
 document.addEventListener('DOMContentLoaded', () => {
     const puntiInteresseContainer = document.getElementById('punti-interesse');
+    const audioPlayer = document.getElementById('audio-player');
 
     // Recupera i punti di interesse dall'API REST
     fetch('https://ecorizzonti.it/wp-json/wp/v2/punti-di-interesse')
@@ -15,6 +16,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 return;
             }
 
+            // Mostra i punti di interesse
             punti.forEach(punto => {
                 const puntoDiv = document.createElement('div');
                 puntoDiv.className = 'punto-interesse';
@@ -27,18 +29,11 @@ document.addEventListener('DOMContentLoaded', () => {
                 coordinate.textContent = `Coordinate: ${punto.acf.coordinate_gps}`;
                 puntoDiv.appendChild(coordinate);
 
-                const playButton = document.createElement('button');
-                playButton.textContent = 'Ascolta Audio';
-                playButton.addEventListener('click', () => {
-                    const audioPlayer = document.getElementById('audio-player');
-                    audioPlayer.src = punto.acf.file_audio;
-                    audioPlayer.style.display = 'block';
-                    audioPlayer.play();
-                });
-                puntoDiv.appendChild(playButton);
-
                 puntiInteresseContainer.appendChild(puntoDiv);
             });
+
+            // Avvia la geolocalizzazione
+            avviaGeolocalizzazione(punti);
         })
         .catch(error => {
             console.error('Errore:', error);
@@ -46,27 +41,54 @@ document.addEventListener('DOMContentLoaded', () => {
         });
 });
 
-function verificaPosizioneUtente(punti) {
+function avviaGeolocalizzazione(punti) {
     if (navigator.geolocation) {
-        navigator.geolocation.watchPosition((position) => {
-            const userLat = position.coords.latitude;
-            const userLon = position.coords.longitude;
-
-            punti.forEach(punto => {
-                const [puntoLat, puntoLon] = punto.acf.coordinate_gps.split(',').map(coord => parseFloat(coord.trim()));
-
-                // Calcola la distanza tra l'utente e il punto di interesse
-                const distanza = Math.sqrt(Math.pow(userLat - puntoLat, 2) + Math.pow(userLon - puntoLon, 2));
-                if (distanza < 0.01) { // Soglia di prossimità (puoi regolarla)
-                    alert(`Sei vicino a: ${punto.title.rendered}`);
-                }
-            });
-        }, (error) => {
-            console.error('Errore nella geolocalizzazione:', error);
-        });
+        navigator.geolocation.watchPosition(
+            (position) => verificaPosizioneUtente(position, punti),
+            (error) => console.error('Errore nella geolocalizzazione:', error),
+            { enableHighAccuracy: true, maximumAge: 10000, timeout: 5000 }
+        );
     } else {
         console.error('Geolocalizzazione non supportata dal browser.');
     }
+}
+
+function verificaPosizioneUtente(position, punti) {
+    const userLat = position.coords.latitude;
+    const userLon = position.coords.longitude;
+
+    punti.forEach(punto => {
+        const [puntoLat, puntoLon] = punto.acf.coordinate_gps.split(',').map(coord => parseFloat(coord.trim()));
+
+        // Calcola la distanza tra l'utente e il punto di interesse
+        const distanza = calcolaDistanza(userLat, userLon, puntoLat, puntoLon);
+
+        // Soglia di prossimità (in chilometri)
+        const sogliaProssimita = 0.1; // 100 metri
+
+        if (distanza < sogliaProssimita) {
+            // Riproduci il file audio
+            const audioPlayer = document.getElementById('audio-player');
+            audioPlayer.src = punto.acf.file_audio;
+            audioPlayer.style.display = 'block';
+            audioPlayer.play();
+
+            // Mostra una notifica
+            alert(`Sei vicino a: ${punto.title.rendered}`);
+        }
+    });
+}
+
+function calcolaDistanza(lat1, lon1, lat2, lon2) {
+    const R = 6371; // Raggio della Terra in chilometri
+    const dLat = (lat2 - lat1) * (Math.PI / 180);
+    const dLon = (lon2 - lon1) * (Math.PI / 180);
+    const a =
+        Math.sin(dLat / 2) * Math.sin(dLat / 2) +
+        Math.cos(lat1 * (Math.PI / 180)) * Math.cos(lat2 * (Math.PI / 180)) *
+        Math.sin(dLon / 2) * Math.sin(dLon / 2);
+    const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
+    return R * c; // Distanza in chilometri
 }
 
 // Chiamata alla funzione dopo aver caricato i punti di interesse
