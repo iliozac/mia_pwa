@@ -32,3 +32,9 @@ document.addEventListener('DOMContentLoaded', () => {
         })
         .catch(error => console.error('Errore:', error));
 });
+
+if ('serviceWorker' in navigator) {
+    navigator.serviceWorker.register('/sw.js')
+        .then(() => console.log('Service Worker registrato'))
+        .catch(error => console.error('Errore nella registrazione del Service Worker:', error));
+}
