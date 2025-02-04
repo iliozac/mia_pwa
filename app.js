@@ -75,3 +75,8 @@ fetch('https://iltuosito.it/wp-json/wp/v2/punti-di-interesse')
     .then(punti => {
         verificaPosizioneUtente(punti);
     });
+if ('serviceWorker' in navigator) {
+    navigator.serviceWorker.register('/sw.js')
+        .then(() => console.log('Service Worker registrato'))
+        .catch(error => console.error('Errore nella registrazione del Service Worker:', error));
+}
