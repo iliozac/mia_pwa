@@ -45,3 +45,33 @@ document.addEventListener('DOMContentLoaded', () => {
             puntiInteresseContainer.innerHTML = '<p>Errore nel caricamento dei punti di interesse.</p>';
         });
 });
+
+function verificaPosizioneUtente(punti) {
+    if (navigator.geolocation) {
+        navigator.geolocation.watchPosition((position) => {
+            const userLat = position.coords.latitude;
+            const userLon = position.coords.longitude;
+
+            punti.forEach(punto => {
+                const [puntoLat, puntoLon] = punto.acf.coordinate_gps.split(',').map(coord => parseFloat(coord.trim()));
+
+                // Calcola la distanza tra l'utente e il punto di interesse
+                const distanza = Math.sqrt(Math.pow(userLat - puntoLat, 2) + Math.pow(userLon - puntoLon, 2));
+                if (distanza < 0.01) { // Soglia di prossimità (puoi regolarla)
+                    alert(`Sei vicino a: ${punto.title.rendered}`);
+                }
+            });
+        }, (error) => {
+            console.error('Errore nella geolocalizzazione:', error);
+        });
+    } else {
+        console.error('Geolocalizzazione non supportata dal browser.');
+    }
+}
+
+// Chiamata alla funzione dopo aver caricato i punti di interesse
+fetch('https://iltuosito.it/wp-json/wp/v2/punti-di-interesse')
+    .then(response => response.json())
+    .then(punti => {
+        verificaPosizioneUtente(punti);
+    });
