@@ -7,7 +7,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
     // Registrazione del Service Worker
     if ('serviceWorker' in navigator) {
-        navigator.serviceWorker.register('sw.js')
+        navigator.serviceWorker.register('/mia_pwa/sw.js')
             .then(() => console.log('Service Worker registrato'))
             .catch(error => console.error('Errore nella registrazione del Service Worker:', error));
     }
