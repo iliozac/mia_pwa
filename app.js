@@ -59,8 +59,6 @@ document.addEventListener('DOMContentLoaded', () => {
 
 function avviaGeolocalizzazione(punti) {
     if (navigator.geolocation) {
-        let watchId = null;
-
         const gestisciPosizione = (position) => {
             console.log('Posizione aggiornata:', position.coords);
             verificaPosizioneUtente(position, punti);
@@ -68,25 +66,16 @@ function avviaGeolocalizzazione(punti) {
 
         const gestisciErrore = (error) => {
             console.error('Errore nella geolocalizzazione:', error.message);
-
-            // Se c'è un errore, riprova a ottenere la posizione dopo un ritardo
-            if (watchId !== null) {
-                navigator.geolocation.clearWatch(watchId);
-            }
-            setTimeout(() => {
-                watchId = navigator.geolocation.watchPosition(gestisciPosizione, gestisciErrore, {
-                    enableHighAccuracy: true,
-                    maximumAge: 10000,
-                    timeout: 10000 // Aumenta il timeout a 10 secondi
-                });
-            }, 2000); // Riprova dopo 2 secondi
+            // Nascondi la box in caso di errore
+            const notificaBox = document.getElementById('notifica-box');
+            notificaBox.style.display = 'none';
         };
 
         // Avvia il monitoraggio della posizione
-        watchId = navigator.geolocation.watchPosition(gestisciPosizione, gestisciErrore, {
+        navigator.geolocation.watchPosition(gestisciPosizione, gestisciErrore, {
             enableHighAccuracy: true,
             maximumAge: 10000,
-            timeout: 10000 // Aumenta il timeout a 10 secondi
+            timeout: 10000 // Timeout di 10 secondi
         });
     } else {
         console.error('Geolocalizzazione non supportata dal browser.');
