@@ -76,7 +76,9 @@ function verificaPosizioneUtente(position, punti) {
     const notificaMessaggio = document.getElementById('notifica-messaggio');
     const audioPlayer = document.getElementById('audio-player');
 
-    punti.forEach(punto => {
+    let puntoVicinoTrovato = false; // Flag per indicare se è stato trovato un punto vicino
+
+    for (const punto of punti) {
         const [puntoLat, puntoLon] = punto.acf.coordinate_gps.split(',').map(coord => parseFloat(coord.trim()));
 
         // Calcola la distanza tra l'utente e il punto di interesse
@@ -92,11 +94,16 @@ function verificaPosizioneUtente(position, punti) {
 
             // Imposta il file audio da riprodurre
             audioPlayer.src = punto.acf.file_audio;
-        } else {
-            // Nascondi la box se l'utente si allontana
-            notificaBox.style.display = 'none';
+
+            puntoVicinoTrovato = true; // Imposta il flag a true
+            break; // Esci dal ciclo
         }
-    });
+    }
+
+    // Nascondi la box se nessun punto di interesse è vicino
+    if (!puntoVicinoTrovato) {
+        notificaBox.style.display = 'none';
+    }
 }
 
 function calcolaDistanza(lat1, lon1, lat2, lon2) {
