@@ -67,29 +67,31 @@ function avviaGeolocalizzazione(punti) {
         };
 
         const gestisciErrore = (error) => {
-            console.error('Errore nella geolocalizzazione:', error);
-            // Se c'è un errore, riprova a ottenere la posizione
+            console.error('Errore nella geolocalizzazione:', error.message);
+
+            // Se c'è un errore, riprova a ottenere la posizione dopo un ritardo
             if (watchId !== null) {
                 navigator.geolocation.clearWatch(watchId);
             }
-            watchId = navigator.geolocation.watchPosition(gestisciPosizione, gestisciErrore, {
-                enableHighAccuracy: true,
-                maximumAge: 10000,
-                timeout: 5000
-            });
+            setTimeout(() => {
+                watchId = navigator.geolocation.watchPosition(gestisciPosizione, gestisciErrore, {
+                    enableHighAccuracy: true,
+                    maximumAge: 10000,
+                    timeout: 10000 // Aumenta il timeout a 10 secondi
+                });
+            }, 2000); // Riprova dopo 2 secondi
         };
 
         // Avvia il monitoraggio della posizione
         watchId = navigator.geolocation.watchPosition(gestisciPosizione, gestisciErrore, {
             enableHighAccuracy: true,
             maximumAge: 10000,
-            timeout: 5000
+            timeout: 10000 // Aumenta il timeout a 10 secondi
         });
     } else {
         console.error('Geolocalizzazione non supportata dal browser.');
     }
 }
-
 function verificaPosizioneUtente(position, punti) {
     const userLat = position.coords.latitude;
     const userLon = position.coords.longitude;
